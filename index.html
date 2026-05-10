@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="The Reel">
+  <meta name="theme-color" content="#f6f0e8">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <title>The Reel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #f6f0e8;
+      --paper: #fbf7f1;
+      --ink: #2a2522;
+      --mute: #7a6f68;
+      --line: #e8ddd0;
+      --rose: #c08585;
+      --rose-soft: #e8c8c8;
+      --sage: #9ba78e;
+      --sage-soft: #d4dac6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* ── TAB BAR ─────────────────────────────────── */
+    .tab-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--cream);
+      padding: 12px 0 8px;
+    }
+
+    .tab-pills {
+      display: flex;
+      gap: 3px;
+      background: var(--line);
+      border-radius: 999px;
+      padding: 4px;
+    }
+
+    .tab-pill {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--mute);
+      padding: 8px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .tab-pill.active { background: var(--ink); color: #fff; }
+
+    .tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--rose);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 999px;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+    }
+
+    /* ── CARDS ───────────────────────────────────── */
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+
+    /* ── TYPOGRAPHY ──────────────────────────────── */
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+
+    .eyebrow.sage { color: var(--sage); }
+
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 28px;
+      color: var(--ink);
+      margin: 20px 0 4px;
+    }
+
+    .hook-text {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 20px;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+
+    .muted { color: var(--mute); }
+    .italic { font-style: italic; }
+
+    /* ── FORM ELEMENTS ───────────────────────────── */
+    textarea,
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    input[type="date"],
+    select {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      background: var(--cream);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    textarea:focus,
+    input:focus,
+    select:focus { border-color: var(--mute); }
+
+    textarea { resize: vertical; }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mute);
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* ── BUTTONS ─────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--ink); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--mute); border: 1px solid var(--line); }
+    .btn-danger { background: transparent; color: var(--rose); border: 1px solid var(--rose-soft); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── CHIPS / PILLS ───────────────────────────── */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: none;
+      cursor: default;
+    }
+
+    .chip-pillar { background: var(--rose-soft); color: var(--rose); }
+    .chip-clip { background: var(--sage-soft); color: var(--sage); }
+
+    .chip-filter {
+      background: var(--line);
+      color: var(--mute);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip-filter.active { background: var(--rose); color: #fff; }
+
+    .chip-theme {
+      background: var(--line);
+      color: var(--ink);
+      border: 1.5px solid var(--line);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip-theme.saved { background: var(--sage); color: #fff; border-color: var(--sage); }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    /* ── ANGLE CARDS ─────────────────────────────── */
+    .angle-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .angle-card:active { border-color: var(--rose); background: rgba(192,133,133,0.04); }
+
+    .angle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .angle-chevron { color: var(--mute); font-size: 20px; line-height: 1; flex-shrink: 0; padding-top: 4px; }
+
+    /* ── EXPANDED PLAN ────────────────────────────── */
+    .expanded-plan {
+      background: var(--cream);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .plan-section { margin-bottom: 14px; }
+    .plan-section:last-child { margin-bottom: 0; }
+
+    .plan-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 6px;
+    }
+
+    .script-text {
+      font-size: 13px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      color: var(--ink);
+    }
+
+    /* ── EXPERIENCE CARD ─────────────────────────── */
+    .experience-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* ── STATUS CHIPS ────────────────────────────── */
+    .status-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .status-chip {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--line);
+      background: transparent;
+      color: var(--mute);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .status-chip.active { border-color: var(--ink); background: var(--ink); color: #fff; }
+
+    /* ── METRIC STRIP ────────────────────────────── */
+    .metric-strip { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+
+    .metric-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--mute); }
+    .metric-value { font-weight: 600; color: var(--ink); }
+
+    /* ── METRIC GRID ─────────────────────────────── */
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .metric-input-wrap { position: relative; }
+    .metric-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 13px; pointer-events: none; }
+    .metric-input-wrap input { padding-left: 30px; }
+
+    /* ── LEARN STATS ─────────────────────────────── */
+    .stat-big {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 52px;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .cadence-bar { display: flex; gap: 5px; margin: 12px 0 6px; }
+
+    .cadence-segment {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--line);
+    }
+
+    .cadence-segment.filled { background: var(--sage); }
+
+    .pipeline-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; }
+
+    .pipeline-cell {
+      border-radius: 12px;
+      padding: 14px 8px;
+      text-align: center;
+    }
+
+    .pipeline-cell.ideas { background: var(--rose-soft); }
+    .pipeline-cell.production { background: var(--sage-soft); }
+    .pipeline-cell.posted { background: var(--line); }
+
+    .pipeline-number {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 34px;
+      display: block;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pipeline-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+
+    /* ── LEADERBOARD ─────────────────────────────── */
+    .leaderboard-item { margin-bottom: 14px; }
+    .leaderboard-item:last-child { margin-bottom: 0; }
+
+    .leaderboard-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 5px;
+    }
+
+    .leaderboard-name { font-size: 13px; font-weight: 600; }
+    .leaderboard-score { font-size: 11px; color: var(--mute); }
+
+    .leaderboard-bar-wrap {
+      height: 8px;
+      background: var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .leaderboard-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--sage);
+      transition: width 0.5s ease;
+    }
+
+    .leaderboard-bar.top { background: linear-gradient(90deg, var(--rose), var(--rose-soft)); }
+
+    /* ── PLAN CARD (TRACK) ───────────────────────── */
+    .plan-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .plan-card:active { border-color: var(--rose-soft); }
+
+    /* ── BACK BUTTON ─────────────────────────────── */
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mute);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 14px;
+    }
+
+    /* ── LOADING ─────────────────────────────────── */
+    .loading-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 0;
+      color: var(--mute);
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--line);
+      border-top-color: var(--rose);
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: spin 0.75s linear infinite;
+    }
+
+    /* ── PERF INDICATOR ──────────────────────────── */
+    .perf-indicator {
+      font-size: 11px;
+      font-style: italic;
+      color: var(--sage);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    /* ── DIVIDER ─────────────────────────────────── */
+    .divider { height: 1px; background: var(--line); margin: 16px 0; }
+
+    /* ── EMPTY STATE ─────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 40px 16px;
+      font-style: italic;
+      color: var(--mute);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── PILL REMOVE ─────────────────────────────── */
+    .pill-remove {
+      cursor: pointer;
+      opacity: 0.55;
+      font-style: normal;
+      margin-left: 1px;
+      line-height: 1;
+    }
+
+    .pill-remove:hover { opacity: 1; }
+
+    /* ── INPUT ROW ───────────────────────────────── */
+    .input-row { display: flex; gap: 10px; }
+    .input-row > * { flex: 1; min-width: 0; }
+
+    /* ── SPACING UTILS ───────────────────────────── */
+    .mt-4 { margin-top: 4px; }
+    .mt-6 { margin-top: 6px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-4 { margin-bottom: 4px; }
+    .mb-6 { margin-bottom: 6px; }
+    .mb-8 { margin-bottom: 8px; }
+    .mb-10 { margin-bottom: 10px; }
+    .mb-12 { margin-bottom: 12px; }
+    .mb-16 { margin-bottom: 16px; }
+
+    .flex { display: flex; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+
+    .tab-content { padding-top: 12px; }
+
+    /* ── ANIMATIONS ──────────────────────────────── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══ TAB BAR ═══════════════════════════════════ -->
+  <div class="tab-bar">
+    <div class="tab-pills">
+      <button class="tab-pill active" id="tab-btn-make" onclick="switchTab('make')">
+        Make <span class="tab-badge" id="badge-make" style="display:none">0</span>
+      </button>
+      <button class="tab-pill" id="tab-btn-track" onclick="switchTab('track')">Track</button>
+      <button class="tab-pill" id="tab-btn-learn" onclick="switchTab('learn')">Learn</button>
+    </div>
+  </div>
+
+  <!-- ═══ MAKE TAB ═══════════════════════════════════ -->
+  <div id="tab-make" class="tab-content">
+
+    <div class="card">
+      <div class="eyebrow mb-8">Brain dump</div>
+      <textarea id="dump-textarea" rows="7"
+        placeholder="Last Tuesday I had a hair appointment in Peckham..."></textarea>
+      <div class="perf-indicator" id="perf-indicator" style="display:none">✦ Performance loop active</div>
+      <div class="flex gap-8 mt-12">
+        <button class="btn btn-primary" id="process-btn" onclick="processDump()">
+          ✦ Process dump
+        </button>
+        <button class="btn btn-ghost" id="clear-btn" onclick="clearDump()" style="display:none">Clear</button>
+      </div>
+      <div id="dump-loading" style="display:none">
+        <div class="loading-wrap"><div class="spinner"></div> Reading the reel</div>
+      </div>
+      <div id="dump-error" style="display:none; color:var(--rose); font-size:13px; margin-top:10px; line-height:1.5;"></div>
+    </div>
+
+    <div id="themes-section" style="display:none">
+      <div class="card">
+        <div class="eyebrow mb-6">Themes coming through</div>
+        <p style="font-size:13px; color:var(--mute); margin-bottom:12px;">Tap to save as a pillar.</p>
+        <div class="pill-row" id="themes-pills"></div>
+      </div>
+    </div>
+
+    <div id="experiences-section" style="display:none">
+      <div class="section-title">From the reel</div>
+      <div id="experiences-list"></div>
+    </div>
+
+  </div><!-- /tab-make -->
+
+  <!-- ═══ TRACK TAB ══════════════════════════════════ -->
+  <div id="tab-track" class="tab-content" style="display:none">
+    <div id="track-list-view">
+      <div class="pill-row mb-12">
+        <button class="chip chip-filter active" data-filter="idea" onclick="setFilter('idea')">
+          Ideas <span id="count-idea">0</span>
+        </button>
+        <button class="chip chip-filter" data-filter="in_production" onclick="setFilter('in_production')">
+          In production <span id="count-in_production">0</span>
+        </button>
+        <button class="chip chip-filter" data-filter="posted" onclick="setFilter('posted')">
+          Posted <span id="count-posted">0</span>
+        </button>
+        <button class="chip chip-filter" data-filter="shelved" onclick="setFilter('shelved')">
+          Shelved <span id="count-shelved">0</span>
+        </button>
+      </div>
+      <div id="track-plans-list"></div>
+    </div>
+    <div id="track-detail-view" style="display:none"></div>
+  </div><!-- /tab-track -->
+
+  <!-- ═══ LEARN TAB ══════════════════════════════════ -->
+  <div id="tab-learn" class="tab-content" style="display:none">
+    <div id="learn-content"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════
+
+const FORMAT_PLAYBOOKS = {
+  'Voiceover': `VOICEOVER STRUCTURE RULES:
+- Hook line: under 2 seconds, lands before any visual cuts. Punchy, tension or curiosity.
+- Tension build: 3 to 4 short lines, each one revealing slightly more. Lines should be SHORT (under 10 words each) so they sit cleanly under b-roll cuts.
+- Resolution: payoff line that feels earned, often a reframe.
+- Last line: should land on a strong visual cue.
+- Format the script with line breaks between each beat. Use [b-roll: clip type] inline notes to mark where each visual change happens.
+- Total speech under 45 seconds. Pacing matters more than word count.`,
+
+  'Talking head': `TALKING HEAD STRUCTURE RULES:
+- Hook: said directly to camera, no setup. First sentence has to make sitting through 30 seconds worth it.
+- Body: 2 to 3 short ideas, each linked by a connector word ("but", "and here's the thing", "so").
+- Mini-pivot: somewhere in the middle, one moment where you change energy (lean in, drop voice, shift seriousness). Mark it [pivot] in the script.
+- Close: a one-liner that's quotable. The kind of thing someone screenshots for the comment section.
+- Total speech 30 to 60 seconds. Don't overstuff.`,
+
+  'Storytime': `STORYTIME STRUCTURE RULES:
+- Hook: tease the dramatic moment from the middle/end. ("So I'm sat in this chair and the stylist looks at me and goes...")
+- Setup: 2 to 3 lines of context only. Resist over-explaining.
+- Rising tension: build the situation in beats. Each beat raises the stakes slightly.
+- Climax: the moment. Slow it down. Use line breaks for breath.
+- Resolution + reflection: what you took from it. The reflection is what makes it shareable, not the story itself.
+- Total speech 45 to 75 seconds.`,
+
+  'Day in the life': `DAY IN THE LIFE STRUCTURE RULES:
+- Open: timestamp or location text + one ambient line. Don't open with "good morning". Open with something specific to today.
+- Beats: 4 to 6 short voiceover or text-overlay moments tied to clip changes. Each beat = one clip + one line.
+- Subtle through-line: there's always a quiet thread (something she's working through, looking forward to, processing). Surface it once or twice without spelling it out.
+- Closing beat: ends on a thought, not an ending. Leaves the viewer wanting to know what comes tomorrow.
+- Format script as: "[time/location] line of voiceover or text overlay" pattern. 6 to 8 of these.`,
+
+  'B-roll montage': `B-ROLL MONTAGE STRUCTURE RULES:
+- No talking head. Voiceover or text overlay only.
+- Hook: one strong opening line over the strongest visual.
+- 5 to 8 short beats, each = clip + 1 sentence. Lines should be even shorter than voiceover format (under 8 words each).
+- Rhythm matters: alternate close-ups with wider shots, motion clips with stills.
+- Last beat: visual punctuation. The clip does the work.
+- Caption carries the depth. Script is sparse on purpose.`,
+
+  'Carousel': `CAROUSEL STRUCTURE RULES (Instagram, 6 to 10 slides):
+- Slide 1: hook slide. Big text, no detail. Makes them swipe.
+- Slide 2: reframe or context.
+- Slides 3 to N-1: the actual value. One idea per slide. Bold key phrase, supporting line underneath.
+- Penultimate slide: the takeaway or summary.
+- Final slide: CTA or question that drives comments.
+- Output as: "Slide 1: [text]" / "Slide 2: [text]" pattern.
+- Caption is where you put the longer story that the slides hint at.`,
+
+  'Tutorial': `TUTORIAL STRUCTURE RULES:
+- Hook: the result, shown first. ("This is how I went from X to Y in 30 seconds.")
+- Numbered steps: 3 to 5 max. Each step = one clip + one short voiceover line.
+- Pacing: don't slow down for less important steps. Speed-ramp through obvious bits.
+- Pro tip: include one "the bit nobody tells you" insight near the end. This is what makes it save-worthy.
+- Outro: the result again, plus the CTA.`,
+
+  'GRWM': `GRWM STRUCTURE RULES:
+- Open: state where you're going. ONE sentence.
+- Voiceover layered over the routine: not narrating what you're doing, but talking about something tangential. The story is the audio. The visual is the routine.
+- 4 to 6 audio beats tied to physical milestones (skin, base, eyes, hair, outfit, finishing touch).
+- Reveal: full look at the end with one quick line.
+- Total speech 45 to 90 seconds. The visual carries the rest.`,
+
+  'POV': `POV STRUCTURE RULES:
+- Hook is the SETUP TEXT overlaid on the clip. ("POV: you've been on the waitlist for 3 months and...")
+- One scene, one emotion. Don't try to do multiple beats.
+- Voiceover is optional. Often text overlay + atmospheric audio works better.
+- Lands on a single visual or line that captures the feeling.
+- Total under 20 seconds. POVs live or die in 5 seconds.`,
+};
+
+const BRAND_CONTEXT = `You are a content strategist for Debbie, a 24-year-old solo founder building Stylist Checked, a UK beauty professional discovery app launching 26 June 2026. She works in finance and AI by day and runs a 100-day public build series Mon, Wed, Fri, Sun on TikTok and Instagram.
+
+Brand voice: knowledgeable big sister. Warm, direct, jargon-free, UK spelling. Never use em dashes. Never use the word "vetted". No corporate fluff. Hooks earn the scroll in 2 seconds. Scripts sound like a voice note from a clever friend, not a brand.
+
+She struggles with the blank-page feeling of putting clips into videos. Your job is to make the path from existing footage to finished video obvious.`;
+
+// ═══════════════════════════════════════════════════════
+// LOCAL STORAGE
+// ═══════════════════════════════════════════════════════
+
+function storageGet(key) {
+  try { return JSON.parse(localStorage.getItem('reel_' + key)); } catch { return null; }
+}
+
+function storageSet(key, value) {
+  try { localStorage.setItem('reel_' + key, JSON.stringify(value)); } catch {}
+}
+
+function getPlans()      { return storageGet('plans')    || []; }
+function savePlans(v)    { storageSet('plans', v); }
+function getThemes()     { return storageGet('themes')   || []; }
+function saveThemes(v)   { storageSet('themes', v); }
+function getLearnings()  { return storageGet('learnings') || ''; }
+function saveLearnings(v){ storageSet('learnings', v); }
+function getDump()       { return storageGet('currentDump'); }
+function saveDump(v)     { storageSet('currentDump', v); }
+
+// ═══════════════════════════════════════════════════════
+// PERFORMANCE SUMMARY (learning loop)
+// ═══════════════════════════════════════════════════════
+
+function buildPerformanceSummary() {
+  const plans     = getPlans();
+  const learnings = getLearnings();
+  const posted    = plans.filter(p => p.status === 'posted' && p.performance);
+  if (posted.length === 0) return '';
+
+  const byFormat = {}, byTag = {};
+
+  posted.forEach(p => {
+    const eng = (p.performance.likes    || 0)
+              + (p.performance.saves    || 0) * 3
+              + (p.performance.comments || 0) * 2;
+
+    if (p.format) {
+      byFormat[p.format] = byFormat[p.format] || { total: 0, count: 0 };
+      byFormat[p.format].total += eng;
+      byFormat[p.format].count += 1;
+    }
+
+    (p.tags || []).forEach(t => {
+      byTag[t] = byTag[t] || { total: 0, count: 0 };
+      byTag[t].total += eng;
+      byTag[t].count += 1;
+    });
+  });
+
+  const fr = Object.entries(byFormat)
+    .map(([f, d]) => ({ f, avg: Math.round(d.total / d.count) }))
+    .sort((a, b) => b.avg - a.avg).slice(0, 3);
+
+  const tr = Object.entries(byTag)
+    .map(([t, d]) => ({ t, avg: Math.round(d.total / d.count) }))
+    .sort((a, b) => b.avg - a.avg).slice(0, 3);
+
+  const recent = posted
+    .slice().sort((a, b) => new Date(b.performance.postedAt || 0) - new Date(a.performance.postedAt || 0))
+    .slice(0, 3)
+    .map(p => `"${p.hook}" (${p.format}): ${p.performance.audienceNote || 'no notes'}`)
+    .join('\n');
+
+  return `PERFORMANCE CONTEXT (use this to shape what you generate):
+Top performing formats: ${fr.map(r => `${r.f} (avg ${r.avg})`).join(', ')}
+Top performing pillars: ${tr.map(r => `${r.t} (avg ${r.avg})`).join(', ')}
+
+Recent posts and reactions:
+${recent}
+
+${learnings ? `Her own observations: ${learnings}` : ''}`.trim();
+}
+
+// ═══════════════════════════════════════════════════════
+// API
+// ═══════════════════════════════════════════════════════
+
+async function callAI(system, prompt, max_tokens = 2000) {
+  const r = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system, prompt, max_tokens }),
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(err.error || 'Something went wrong with the AI. Try again.');
+  }
+  const data = await r.json();
+  return data.text;
+}
+
+function parseJSON(text) {
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('Couldn\'t read the AI response. Try again.');
+  return JSON.parse(match[0]);
+}
+
+// ═══════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════
+
+let currentTab = 'make';
+
+function switchTab(tab) {
+  currentTab = tab;
+  ['make', 'track', 'learn'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'track') renderTrackList();
+  if (tab === 'learn') renderLearn();
+  updateBadge();
+}
+
+function updateBadge() {
+  const plans = getPlans();
+  const active = plans.filter(p => p.status === 'idea' || p.status === 'in_production').length;
+  const badge  = document.getElementById('badge-make');
+  if (active > 0) { badge.textContent = active; badge.style.display = 'inline-flex'; }
+  else { badge.style.display = 'none'; }
+
+  ['idea', 'in_production', 'posted', 'shelved'].forEach(s => {
+    const el = document.getElementById('count-' + s);
+    if (el) el.textContent = plans.filter(p => p.status === s).length;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// MAKE TAB
+// ═══════════════════════════════════════════════════════
+
+let processed     = null;
+let expandedAngle = {};
+
+// Restore draft on load
+function restoreDraft() {
+  const d = getDump();
+  if (!d) return;
+  if (d.rawText) {
+    document.getElementById('dump-textarea').value = d.rawText;
+    document.getElementById('clear-btn').style.display = 'inline-flex';
+  }
+  if (d.processed) {
+    processed = d.processed;
+    showThemes(d.processed.themes || []);
+    showExperiences(d.processed.experiences || []);
+  }
+}
+
+document.getElementById('dump-textarea').addEventListener('input', function () {
+  document.getElementById('clear-btn').style.display = this.value ? 'inline-flex' : 'none';
+});
+
+function checkPerfIndicator() {
+  const summary = buildPerformanceSummary();
+  document.getElementById('perf-indicator').style.display = summary ? 'flex' : 'none';
+}
+
+function clearDump() {
+  document.getElementById('dump-textarea').value = '';
+  document.getElementById('clear-btn').style.display = 'none';
+  document.getElementById('themes-section').style.display = 'none';
+  document.getElementById('experiences-section').style.display = 'none';
+  document.getElementById('dump-error').style.display = 'none';
+  processed     = null;
+  expandedAngle = {};
+  saveDump(null);
+}
+
+async function processDump() {
+  const dump = document.getElementById('dump-textarea').value.trim();
+  if (!dump) return;
+
+  const btn     = document.getElementById('process-btn');
+  const loading = document.getElementById('dump-loading');
+  const errEl   = document.getElementById('dump-error');
+
+  btn.disabled = true;
+  loading.style.display = 'block';
+  errEl.style.display   = 'none';
+  document.getElementById('themes-section').style.display     = 'none';
+  document.getElementById('experiences-section').style.display = 'none';
+
+  try {
+    const savedThemes       = getThemes();
+    const performanceSummary = buildPerformanceSummary();
+
+    const prompt = `Read Debbie's brain dump loosely (she may be voice-to-texting and rambling).
+
+BRAIN DUMP:
+${dump}
+
+${savedThemes.length > 0 ? `Existing pillars she's noticed: ${savedThemes.join(', ')}. Use these tags where they fit, surface new ones if you spot them.` : ''}
+
+${performanceSummary}
+
+Pull out:
+1. Themes coming through (her content pillars, observed bottom-up). Maximum 6.
+2. Experiences (distinct moments mentioned). For each, give 2 to 3 video angle teasers from different formats. ${performanceSummary ? 'Bias toward formats and angles that match her top-performing patterns above.' : ''}
+
+Formats: Day in the life, Voiceover, Talking head, B-roll montage, Carousel, Storytime, Tutorial, GRWM, POV.
+
+Return ONLY a JSON object, no preamble:
+{
+  "themes": ["theme 1", "theme 2"],
+  "experiences": [
+    {
+      "title": "evocative title in her voice",
+      "summary": "1 sentence in her voice",
+      "tags": ["theme name from list"],
+      "angles": [
+        { "format": "format name", "hook": "2 to 3 second hook", "angle": "1 sentence on the unique take" }
+      ]
+    }
+  ]
+}
+
+Be ruthless about distinctness. If she mentioned 3 things, return 3 experiences not 8.`;
+
+    const text = await callAI(BRAND_CONTEXT, prompt, 3000);
+    processed  = parseJSON(text);
+
+    saveDump({ rawText: dump, processed, ts: new Date().toISOString() });
+    showThemes(processed.themes || []);
+    showExperiences(processed.experiences || []);
+
+    document.getElementById('themes-section').style.display     = (processed.themes?.length     ? 'block' : 'none');
+    document.getElementById('experiences-section').style.display = (processed.experiences?.length ? 'block' : 'none');
+
+  } catch (e) {
+    errEl.textContent   = e.message || 'Something went wrong. Try again.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled          = false;
+    loading.style.display = 'none';
+  }
+}
+
+function showThemes(themes) {
+  const saved     = getThemes();
+  const container = document.getElementById('themes-pills');
+  container.innerHTML = themes.map(t => {
+    const isSaved = saved.includes(t);
+    return `<button class="chip chip-theme ${isSaved ? 'saved' : ''}"
+      onclick="toggleTheme(${JSON.stringify(t)}, this)">
+      ${isSaved ? '✓ ' : ''}${h(t)}
+    </button>`;
+  }).join('');
+}
+
+function toggleTheme(theme, btn) {
+  let saved = getThemes();
+  if (saved.includes(theme)) {
+    saved = saved.filter(t => t !== theme);
+    btn.classList.remove('saved');
+    btn.innerHTML = h(theme);
+  } else {
+    saved.push(theme);
+    btn.classList.add('saved');
+    btn.innerHTML = '✓ ' + h(theme);
+  }
+  saveThemes(saved);
+}
+
+function showExperiences(experiences) {
+  const container = document.getElementById('experiences-list');
+  container.innerHTML = experiences.map((exp, ei) => `
+    <div class="experience-card" id="exp-${ei}">
+      <div class="eyebrow mb-8">Experience ${ei + 1}</div>
+      <div class="hook-text mb-8">${h(exp.title)}</div>
+      <p class="italic muted mb-10" style="font-size:13px">${h(exp.summary)}</p>
+      <div class="pill-row mb-12">
+        ${(exp.tags || []).map(t => `<span class="chip chip-pillar">${h(t)}</span>`).join('')}
+      </div>
+      <div class="eyebrow sage mb-8">Angles</div>
+      ${(exp.angles || []).map((ang, ai) => `
+        <div class="angle-card" onclick="expandAngle(${ei}, ${ai})" id="angle-card-${ei}-${ai}">
+          <div class="angle-header">
+            <div style="flex:1">
+              <div class="eyebrow mb-4">${h(ang.format)}</div>
+              <div class="hook-text" style="font-size:17px">${h(ang.hook)}</div>
+              <p class="muted mt-6" style="font-size:13px">${h(ang.angle)}</p>
+            </div>
+            <div class="angle-chevron">›</div>
+          </div>
+          <div id="angle-content-${ei}-${ai}"></div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+async function expandAngle(ei, ai) {
+  const key = `${ei}-${ai}`;
+  if (expandedAngle[key]) return;
+
+  const exp = processed.experiences[ei];
+  const ang = exp.angles[ai];
+  const contentEl = document.getElementById(`angle-content-${ei}-${ai}`);
+
+  contentEl.innerHTML = '<div class="loading-wrap"><div class="spinner"></div> Working on it</div>';
+
+  try {
+    const performanceSummary = buildPerformanceSummary();
+    const playbook           = FORMAT_PLAYBOOKS[ang.format] || '';
+    const system             = BRAND_CONTEXT + (playbook ? '\n\n' + playbook : '');
+
+    const prompt = `Expand this video angle into a full plan she can film today.
+
+Experience: ${exp.title}
+Summary: ${exp.summary}
+Format: ${ang.format}
+Hook: ${ang.hook}
+Angle: ${ang.angle}
+
+${performanceSummary}
+
+Apply the structure rules above strictly. The script must reflect the format's actual rhythm, not just be generic content.
+
+Return ONLY a JSON object, no preamble:
+{
+  "hook": "first 2 to 3 seconds polished",
+  "script": "full conversational script following the format's structure rules. UK spelling. Use the formatting markers from the playbook (e.g. [b-roll: ...], [pivot], 'Slide 1: ...').",
+  "clipsToUse": ["specific clip 1", "specific clip 2", "specific clip 3"],
+  "caption": "1 to 3 short sentences plus 3 to 5 lowercase hashtags",
+  "duration": "estimated seconds e.g. 30s"
+}`;
+
+    const text           = await callAI(system, prompt, 2500);
+    const plan           = parseJSON(text);
+    expandedAngle[key]   = { plan, exp, ang };
+
+    contentEl.innerHTML = renderExpandedPlan(plan, ei, ai);
+
+  } catch (e) {
+    contentEl.innerHTML = `<p style="color:var(--rose);font-size:13px;margin-top:10px;line-height:1.5">${h(e.message)}</p>`;
+  }
+}
+
+function renderExpandedPlan(plan, ei, ai) {
+  return `
+    <div class="expanded-plan">
+      <div class="plan-section">
+        <div class="plan-label">Hook</div>
+        <div class="hook-text" style="font-size:17px">${h(plan.hook)}</div>
+      </div>
+      <div class="plan-section">
+        <div class="plan-label">Script</div>
+        <div class="script-text">${h(plan.script)}</div>
+      </div>
+      ${(plan.clipsToUse || []).length ? `
+      <div class="plan-section">
+        <div class="plan-label">Clips to grab</div>
+        <div class="pill-row">${plan.clipsToUse.map(c => `<span class="chip chip-clip">${h(c)}</span>`).join('')}</div>
+      </div>` : ''}
+      <div class="plan-section">
+        <div class="plan-label">Caption</div>
+        <p style="font-size:13px;line-height:1.6">${h(plan.caption)}</p>
+      </div>
+      <div class="plan-section">
+        <div class="plan-label">Duration</div>
+        <p style="font-size:13px">${h(plan.duration)}</p>
+      </div>
+      <div class="flex gap-8 mt-16">
+        <button class="btn btn-primary" id="save-btn-${ei}-${ai}" onclick="savePlanToTrack(${ei}, ${ai})">Save to Track</button>
+        <button class="btn btn-ghost" onclick="copyPlan(${ei}, ${ai})">Copy</button>
+      </div>
+    </div>`;
+}
+
+function savePlanToTrack(ei, ai) {
+  const key = `${ei}-${ai}`;
+  if (!expandedAngle[key]) return;
+  const { plan, exp, ang } = expandedAngle[key];
+
+  const plans = getPlans();
+  plans.push({
+    id:         Date.now() + Math.random(),
+    hook:       plan.hook,
+    script:     plan.script,
+    clipsToUse: plan.clipsToUse || [],
+    caption:    plan.caption,
+    duration:   plan.duration,
+    experience: exp.title,
+    format:     ang.format,
+    tags:       exp.tags || [],
+    status:     'idea',
+    createdAt:  new Date().toISOString(),
+  });
+  savePlans(plans);
+  updateBadge();
+
+  const btn = document.getElementById(`save-btn-${ei}-${ai}`);
+  if (btn) { btn.textContent = '✓ Saved'; btn.disabled = true; }
+}
+
+function copyPlan(ei, ai) {
+  const key = `${ei}-${ai}`;
+  if (!expandedAngle[key]) return;
+  const { plan } = expandedAngle[key];
+  const text = [
+    'HOOK', plan.hook, '',
+    'SCRIPT', plan.script, '',
+    'CLIPS', (plan.clipsToUse || []).join('\n'), '',
+    'CAPTION', plan.caption, '',
+    'DURATION', plan.duration,
+  ].join('\n');
+  navigator.clipboard.writeText(text).catch(() => {});
+  const btn = document.querySelector(`#angle-content-${ei}-${ai} .btn-ghost`);
+  if (btn) { const orig = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = orig, 1500); }
+}
+
+// ═══════════════════════════════════════════════════════
+// TRACK TAB
+// ═══════════════════════════════════════════════════════
+
+let currentFilter = 'idea';
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.chip-filter').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  renderTrackList();
+}
+
+function renderTrackList() {
+  const plans     = getPlans().filter(p => p.status === currentFilter);
+  const container = document.getElementById('track-plans-list');
+
+  if (plans.length === 0) {
+    const msgs = {
+      idea:          'No ideas yet. Go dump a brain dump on the Make tab.',
+      in_production: 'Nothing in production. Move an idea here once you start filming.',
+      posted:        'Nothing posted yet. When you post, mark it here and log performance.',
+      shelved:       'Nothing shelved.',
+    };
+    container.innerHTML = `<div class="empty-state">${msgs[currentFilter]}</div>`;
+    return;
+  }
+
+  const sorted = plans.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  container.innerHTML = sorted.map(p => `
+    <div class="plan-card" onclick="showPlanDetail(${p.id})">
+      <div class="eyebrow mb-6">${h(p.format || '')}${p.experience ? ' · ' + h(p.experience) : ''}</div>
+      <div class="hook-text" style="font-size:18px; margin:4px 0 8px">${h(p.hook)}</div>
+      <div class="pill-row">
+        ${(p.tags || []).map(t => `<span class="chip chip-pillar">${h(t)}</span>`).join('')}
+      </div>
+      ${p.performance ? `
+        <div class="metric-strip">
+          <span class="metric-item">👁 <span class="metric-value">${fmt(p.performance.views)}</span></span>
+          <span class="metric-item">♡ <span class="metric-value">${fmt(p.performance.likes)}</span></span>
+          <span class="metric-item">💬 <span class="metric-value">${fmt(p.performance.comments)}</span></span>
+          <span class="metric-item">⊟ <span class="metric-value">${fmt(p.performance.saves)}</span></span>
+        </div>` : ''}
+    </div>
+  `).join('');
+}
+
+function showPlanDetail(planId) {
+  document.getElementById('track-list-view').style.display  = 'none';
+  document.getElementById('track-detail-view').style.display = 'block';
+  renderPlanDetail(planId);
+}
+
+function renderPlanDetail(planId) {
+  const p = getPlans().find(pl => pl.id == planId);
+  if (!p) return;
+  const container = document.getElementById('track-detail-view');
+
+  const statusLabels = { idea: 'Idea', in_production: 'In production', posted: 'Posted', shelved: 'Shelved' };
+
+  container.innerHTML = `
+    <button class="back-btn" onclick="backToTrackList()">← Back</button>
+
+    <div class="card">
+      <div class="eyebrow mb-6">${h(p.format || '')}${p.experience ? ' · ' + h(p.experience) : ''}</div>
+      <div class="hook-text mb-12">${h(p.hook)}</div>
+
+      <div class="eyebrow mb-8">Status</div>
+      <div class="status-row mb-12">
+        ${['idea', 'in_production', 'posted', 'shelved'].map(s => `
+          <button class="status-chip ${p.status === s ? 'active' : ''}"
+            onclick="updatePlanStatus(${p.id}, '${s}')">
+            ${statusLabels[s]}
+          </button>`).join('')}
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="plan-section">
+        <div class="plan-label">Script</div>
+        <div class="script-text">${h(p.script)}</div>
+      </div>
+
+      ${(p.clipsToUse || []).length ? `
+      <div class="plan-section mt-12">
+        <div class="plan-label">Clips</div>
+        <div class="pill-row">${p.clipsToUse.map(c => `<span class="chip chip-clip">${h(c)}</span>`).join('')}</div>
+      </div>` : ''}
+
+      ${p.caption ? `
+      <div class="plan-section mt-12">
+        <div class="plan-label">Caption</div>
+        <p style="font-size:13px;line-height:1.6">${h(p.caption)}</p>
+      </div>` : ''}
+
+      ${p.duration ? `
+      <div class="plan-section mt-12">
+        <div class="plan-label">Duration</div>
+        <p style="font-size:13px">${h(p.duration)}</p>
+      </div>` : ''}
+
+      ${(p.tags || []).length ? `
+      <div class="pill-row mt-12">
+        ${p.tags.map(t => `<span class="chip chip-pillar">${h(t)}</span>`).join('')}
+      </div>` : ''}
+
+      <div class="flex gap-8 mt-16">
+        <button class="btn btn-ghost" onclick="copyFullPlan(${p.id})">Copy whole plan</button>
+        <button class="btn btn-danger" onclick="deletePlan(${p.id})">Delete</button>
+      </div>
+    </div>
+
+    <div id="perf-section-${p.id}">
+      ${p.status === 'posted' ? renderPerformanceForm(p) : ''}
+    </div>`;
+}
+
+function renderPerformanceForm(p) {
+  const perf = p.performance || {};
+  const postedDate = perf.postedAt ? perf.postedAt.split('T')[0] : '';
+
+  return `
+    <div class="card">
+      <div class="eyebrow mb-12">Performance</div>
+
+      <div class="input-row mb-12">
+        <div>
+          <label>Posted on</label>
+          <input type="date" value="${a(postedDate)}"
+            onchange="updatePerf(${p.id}, 'postedAt', this.value ? this.value + 'T00:00:00.000Z' : '')">
+        </div>
+        <div>
+          <label>Platform</label>
+          <select onchange="updatePerf(${p.id}, 'platform', this.value)">
+            <option value="" ${!perf.platform ? 'selected' : ''}>Pick one</option>
+            <option value="tiktok"    ${perf.platform === 'tiktok'    ? 'selected' : ''}>TikTok</option>
+            <option value="instagram" ${perf.platform === 'instagram' ? 'selected' : ''}>Instagram</option>
+            <option value="both"      ${perf.platform === 'both'      ? 'selected' : ''}>Both</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-12">
+        <label>Link (optional)</label>
+        <input type="url" value="${a(perf.url || '')}" placeholder="https://tiktok.com/..."
+          onchange="updatePerf(${p.id}, 'url', this.value)">
+      </div>
+
+      <div class="metric-grid mb-12">
+        ${[
+          { key: 'views',    icon: '👁',  label: 'Views'    },
+          { key: 'likes',    icon: '♡',  label: 'Likes'    },
+          { key: 'comments', icon: '💬', label: 'Comments' },
+          { key: 'saves',    icon: '⊟',  label: 'Saves'    },
+          { key: 'shares',   icon: '↗',  label: 'Shares'   },
+        ].map(m => `
+          <div>
+            <label>${m.label}</label>
+            <div class="metric-input-wrap">
+              <span class="metric-icon">${m.icon}</span>
+              <input type="number" min="0" value="${perf[m.key] || ''}" placeholder="0"
+                onchange="updatePerf(${p.id}, '${m.key}', +this.value)">
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <div class="mb-12">
+        <label>What did the audience pick up on?</label>
+        <textarea rows="3"
+          placeholder="What landed, what people commented on..."
+          oninput="updatePerf(${p.id}, 'audienceNote', this.value)">${h(perf.audienceNote || '')}</textarea>
+      </div>
+
+      <div>
+        <label>Where did people drop off?</label>
+        <textarea rows="3"
+          placeholder="Where attention fell off..."
+          oninput="updatePerf(${p.id}, 'dropOff', this.value)">${h(perf.dropOff || '')}</textarea>
+      </div>
+    </div>`;
+}
+
+function updatePlanStatus(planId, newStatus) {
+  const plans = getPlans();
+  const idx   = plans.findIndex(p => p.id == planId);
+  if (idx === -1) return;
+
+  plans[idx].status = newStatus;
+  if (newStatus === 'posted' && !plans[idx].performance) {
+    plans[idx].performance = {
+      postedAt: new Date().toISOString(),
+      platform: '', url: '',
+      views: 0, likes: 0, comments: 0, saves: 0, shares: 0,
+      audienceNote: '', dropOff: '',
+    };
+  }
+  savePlans(plans);
+  updateBadge();
+  renderPlanDetail(planId);
+}
+
+function updatePerf(planId, field, value) {
+  const plans = getPlans();
+  const idx   = plans.findIndex(p => p.id == planId);
+  if (idx === -1) return;
+  if (!plans[idx].performance) plans[idx].performance = {};
+  plans[idx].performance[field] = value;
+  savePlans(plans);
+}
+
+function deletePlan(planId) {
+  if (!confirm('Delete this plan? It can\'t be undone.')) return;
+  savePlans(getPlans().filter(p => p.id != planId));
+  updateBadge();
+  backToTrackList();
+}
+
+function backToTrackList() {
+  document.getElementById('track-list-view').style.display  = 'block';
+  document.getElementById('track-detail-view').style.display = 'none';
+  renderTrackList();
+}
+
+function copyFullPlan(planId) {
+  const p = getPlans().find(pl => pl.id == planId);
+  if (!p) return;
+  const text = [
+    'HOOK', p.hook, '',
+    'SCRIPT', p.script, '',
+    'CLIPS', (p.clipsToUse || []).join('\n'), '',
+    'CAPTION', p.caption || '', '',
+    'DURATION', p.duration || '',
+  ].join('\n');
+  navigator.clipboard.writeText(text).catch(() => {});
+}
+
+// ═══════════════════════════════════════════════════════
+// LEARN TAB
+// ═══════════════════════════════════════════════════════
+
+function renderLearn() {
+  const plans    = getPlans();
+  const themes   = getThemes();
+  const learnings = getLearnings();
+  const posted   = plans.filter(p => p.status === 'posted' && p.performance);
+
+  // Posts this week (Mon–Sun)
+  const now       = new Date();
+  const dayOfWeek = now.getDay(); // 0=Sun
+  const daysToMon = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - daysToMon);
+  weekStart.setHours(0, 0, 0, 0);
+  const thisWeekCount = posted.filter(p => new Date(p.performance.postedAt || 0) >= weekStart).length;
+
+  // Pipeline
+  const cnt = { idea: 0, in_production: 0, posted: 0, shelved: 0 };
+  plans.forEach(p => { if (cnt[p.status] !== undefined) cnt[p.status]++; });
+
+  // Engagement scorer
+  const engScore = perf => (perf.likes || 0) + (perf.saves || 0) * 3 + (perf.comments || 0) * 2;
+
+  // Format leaderboard
+  const byFormat = {};
+  posted.forEach(p => {
+    if (!p.format) return;
+    byFormat[p.format] = byFormat[p.format] || { total: 0, count: 0 };
+    byFormat[p.format].total += engScore(p.performance);
+    byFormat[p.format].count++;
+  });
+  const fmtBoard = Object.entries(byFormat)
+    .map(([name, d]) => ({ name, avg: Math.round(d.total / d.count), count: d.count }))
+    .sort((a, b) => b.avg - a.avg);
+
+  // Pillar leaderboard
+  const byTag = {};
+  posted.forEach(p => {
+    const eng = engScore(p.performance);
+    (p.tags || []).forEach(t => {
+      byTag[t] = byTag[t] || { total: 0, count: 0 };
+      byTag[t].total += eng;
+      byTag[t].count++;
+    });
+  });
+  const tagBoard = Object.entries(byTag)
+    .map(([name, d]) => ({ name, avg: Math.round(d.total / d.count), count: d.count }))
+    .sort((a, b) => b.avg - a.avg);
+
+  const maxFmt = fmtBoard[0]?.avg || 1;
+  const maxTag = tagBoard[0]?.avg || 1;
+
+  function leaderboardRows(items, max) {
+    return items.map((item, i) => `
+      <div class="leaderboard-item">
+        <div class="leaderboard-meta">
+          <span class="leaderboard-name">${h(item.name)}</span>
+          <span class="leaderboard-score">avg ${item.avg} · ${item.count} post${item.count !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="leaderboard-bar-wrap">
+          <div class="leaderboard-bar ${i === 0 ? 'top' : ''}"
+            style="width:${Math.round(item.avg / max * 100)}%"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('learn-content').innerHTML = `
+    <!-- This week -->
+    <div class="card">
+      <div class="eyebrow mb-8">This week</div>
+      <div class="stat-big">${thisWeekCount}</div>
+      <p class="muted mt-4" style="font-size:14px">of 4 posts</p>
+      <div class="cadence-bar">
+        ${[0,1,2,3].map(i => `<div class="cadence-segment ${i < thisWeekCount ? 'filled' : ''}"></div>`).join('')}
+      </div>
+      <p class="muted" style="font-size:12px">Mon, Wed, Fri, Sun cadence</p>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="card">
+      <div class="eyebrow mb-4">Pipeline</div>
+      <div class="pipeline-grid">
+        <div class="pipeline-cell ideas">
+          <span class="pipeline-number">${cnt.idea}</span>
+          <span class="pipeline-label">Ideas</span>
+        </div>
+        <div class="pipeline-cell production">
+          <span class="pipeline-number">${cnt.in_production}</span>
+          <span class="pipeline-label">In production</span>
+        </div>
+        <div class="pipeline-cell posted">
+          <span class="pipeline-number">${cnt.posted}</span>
+          <span class="pipeline-label">Posted</span>
+        </div>
+      </div>
+    </div>
+
+    ${posted.length > 0 ? `
+    <!-- Format leaderboard -->
+    ${fmtBoard.length > 0 ? `
+    <div class="card">
+      <div class="eyebrow mb-4">Format leaderboard</div>
+      <p class="muted mb-12" style="font-size:11px">Engagement = likes + saves×3 + comments×2</p>
+      ${leaderboardRows(fmtBoard, maxFmt)}
+    </div>` : ''}
+
+    <!-- Pillar leaderboard -->
+    ${tagBoard.length > 0 ? `
+    <div class="card">
+      <div class="eyebrow mb-4">Pillar leaderboard</div>
+      <p class="muted mb-12" style="font-size:11px">Engagement = likes + saves×3 + comments×2</p>
+      ${leaderboardRows(tagBoard, maxTag)}
+    </div>` : ''}
+
+    ` : `<div class="empty-state">Post your first video and log its performance to see what's working.</div>`}
+
+    <!-- Learnings notebook -->
+    <div class="card">
+      <div class="eyebrow mb-8">Learnings notebook</div>
+      <textarea id="learnings-textarea" rows="5"
+        placeholder="e.g. Hooks starting with a question get more saves. People care about texturism content. Don't talk about the app for the first 10 seconds."
+        oninput="saveLearnings(this.value)">${h(learnings)}</textarea>
+    </div>
+
+    <!-- Saved pillars -->
+    ${themes.length > 0 ? `
+    <div class="card">
+      <div class="eyebrow mb-8">Your pillars</div>
+      <div class="pill-row">
+        ${themes.map(t => `
+          <span class="chip chip-pillar">
+            ${h(t)}<span class="pill-remove" onclick="removePillar(${JSON.stringify(t)})">×</span>
+          </span>`).join('')}
+      </div>
+    </div>` : ''}`;
+}
+
+function removePillar(theme) {
+  saveThemes(getThemes().filter(t => t !== theme));
+  renderLearn();
+}
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+
+function h(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g,  '&#39;');
+}
+
+function a(str) {
+  if (str == null) return '';
+  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function fmt(n) {
+  if (!n) return '0';
+  n = Number(n);
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(n);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+
+checkPerfIndicator();
+updateBadge();
+restoreDraft();
+</script>
+</body>
+</html>
