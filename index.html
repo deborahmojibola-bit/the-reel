@@ -545,6 +545,20 @@
       padding-bottom: 4px;
     }
 
+    .data-btn {
+      font-size: 20px;
+      line-height: 1;
+      color: var(--mute);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: color 0.15s;
+    }
+
+    .data-btn:active { color: var(--ink); }
+
     /* ── VOICE BUTTON ────────────────────────────── */
     .voice-btn {
       display: inline-flex;
@@ -665,7 +679,28 @@
   <!-- ═══ HEADER ════════════════════════════════════ -->
   <div class="app-header">
     <div class="logo">The Reel</div>
-    <div class="logo-day" id="header-day"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="logo-day" id="header-day"></div>
+      <button class="data-btn" onclick="toggleDataPanel()" title="Export / Import data">⋯</button>
+    </div>
+  </div>
+
+  <!-- DATA PANEL -->
+  <div id="data-panel" style="display:none">
+    <div class="card" style="margin-bottom:8px">
+      <div class="eyebrow mb-8">Your data</div>
+      <p class="muted mb-12" style="font-size:13px;line-height:1.6">
+        Export saves everything to a file. Import restores from that file -- useful when moving from Safari to the home screen app.
+      </p>
+      <div class="flex gap-8">
+        <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="exportData()">Export JSON</button>
+        <label class="btn btn-ghost" style="flex:1;justify-content:center;cursor:pointer">
+          Import JSON
+          <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+        </label>
+      </div>
+      <div id="import-status" style="font-size:12px;color:var(--sage);margin-top:8px;display:none"></div>
+    </div>
   </div>
 
   <!-- ═══ TAB BAR ═══════════════════════════════════ -->
@@ -1924,6 +1959,60 @@ function seedDemoData() {
   if (!getThemes().length) saveThemes(['The Cost', 'Founder life', 'The Process', 'Founder mindset']);
   storageSet('learnings', 'Hooks starting with money or honesty get more saves. Day-in-the-life format holds attention longer than talking head. Don\'t open with "good morning" -- open with the thing.');
   updateBadge();
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════
+
+function toggleDataPanel() {
+  const panel = document.getElementById('data-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function exportData() {
+  const data = {};
+  ['plans', 'themes', 'learnings', 'currentDump'].forEach(key => {
+    const val = storageGet(key);
+    if (val != null) data[key] = val;
+  });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'the-reel-backup.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.plans)     storageSet('plans',       data.plans);
+      if (data.themes)    storageSet('themes',       data.themes);
+      if (data.learnings) storageSet('learnings',    data.learnings);
+      if (data.currentDump) storageSet('currentDump', data.currentDump);
+
+      updateBadge();
+      if (currentTab === 'track') renderTrackList();
+      if (currentTab === 'learn') renderLearn();
+
+      const status = document.getElementById('import-status');
+      status.textContent = `Imported ${(data.plans || []).length} plans.`;
+      status.style.display = 'block';
+      setTimeout(() => { status.style.display = 'none'; }, 3000);
+    } catch {
+      const status = document.getElementById('import-status');
+      status.textContent = 'Could not read that file. Make sure it\'s a The Reel export.';
+      status.style.color = 'var(--rose)';
+      status.style.display = 'block';
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ═══════════════════════════════════════════════════════
