@@ -1370,9 +1370,78 @@ function renderPlanDetail(planId) {
       </div>
     </div>
 
+    ${renderProductionCard(p)}
+
     <div id="perf-section-${p.id}">
       ${p.status === 'posted' ? renderPerformanceForm(p) : ''}
     </div>`;
+}
+
+function renderProductionCard(p) {
+  const prod = p.production || {};
+  const shootDate = prod.shootDate ? prod.shootDate.split('T')[0] : '';
+
+  const clipRows = (p.clipsToUse || []).length
+    ? (p.clipsToUse || []).map((clip, i) => {
+        const note = (prod.clipNotes || {})[i] || '';
+        return `
+          <div style="margin-bottom:10px">
+            <div style="font-size:12px;font-weight:600;color:var(--mute);margin-bottom:4px">
+              ${h(clip)}
+            </div>
+            <input type="text" value="${a(note)}"
+              placeholder="Where to find it in your camera roll..."
+              oninput="updateProd(${p.id}, 'clipNote', ${i}, this.value)">
+          </div>`;
+      }).join('')
+    : '';
+
+  return `
+    <div class="card">
+      <div class="eyebrow mb-12">Production</div>
+
+      <div class="input-row mb-12">
+        <div>
+          <label>Shoot date</label>
+          <input type="date" value="${a(shootDate)}"
+            onchange="updateProd(${p.id}, 'shootDate', this.value ? this.value + 'T00:00:00.000Z' : '')">
+        </div>
+        <div>
+          <label>Location</label>
+          <input type="text" value="${a(prod.location || '')}"
+            placeholder="kitchen, tube, outside..."
+            oninput="updateProd(${p.id}, 'location', this.value)">
+        </div>
+      </div>
+
+      ${clipRows ? `
+      <div class="mb-12">
+        <label style="margin-bottom:8px;display:block">Camera roll -- where to find each clip</label>
+        ${clipRows}
+      </div>` : ''}
+
+      <div>
+        <label>Other production notes</label>
+        <textarea rows="3"
+          placeholder="Lighting setup, outfit, what to say to camera, timing..."
+          oninput="updateProd(${p.id}, 'notes', this.value)">${h(prod.notes || '')}</textarea>
+      </div>
+    </div>`;
+}
+
+function updateProd(planId, field, indexOrValue, value) {
+  const plans = getPlans();
+  const idx   = plans.findIndex(p => p.id == planId);
+  if (idx === -1) return;
+  if (!plans[idx].production) plans[idx].production = {};
+
+  if (field === 'clipNote') {
+    if (!plans[idx].production.clipNotes) plans[idx].production.clipNotes = {};
+    plans[idx].production.clipNotes[indexOrValue] = value;
+  } else {
+    plans[idx].production[field] = indexOrValue;
+  }
+  savePlans(plans);
 }
 
 function renderPerformanceForm(p) {
