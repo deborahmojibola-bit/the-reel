@@ -517,10 +517,156 @@
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── HEADER / MASTHEAD ───────────────────────── */
+    .app-header {
+      padding: 20px 0 2px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 34px;
+      color: var(--ink);
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .logo-day {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mute);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding-bottom: 4px;
+    }
+
+    /* ── VOICE BUTTON ────────────────────────────── */
+    .voice-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      background: transparent;
+      color: var(--mute);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .voice-btn.recording {
+      border-color: var(--rose);
+      color: var(--rose);
+      background: rgba(192, 133, 133, 0.06);
+      animation: recordPulse 1.4s ease-in-out infinite;
+    }
+
+    .voice-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    @keyframes recordPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(192, 133, 133, 0.35); }
+      50%       { box-shadow: 0 0 0 7px rgba(192, 133, 133, 0); }
+    }
+
+    /* ── PROMPT CHIPS ────────────────────────────── */
+    .prompt-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .prompt-chip {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1.5px solid var(--line);
+      background: var(--paper);
+      color: var(--mute);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .prompt-chip:active {
+      border-color: var(--rose-soft);
+      color: var(--rose);
+      background: rgba(232, 200, 200, 0.18);
+    }
+
+    /* ── VOICE STATUS ────────────────────────────── */
+    .voice-status {
+      font-size: 12px;
+      color: var(--rose);
+      font-style: italic;
+      margin-top: 6px;
+      min-height: 16px;
+    }
+
+    /* ── DEMO BUTTON ─────────────────────────────── */
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1.5px dashed var(--line);
+      background: transparent;
+      color: var(--mute);
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.15s;
+    }
+
+    .demo-btn:active { border-color: var(--rose-soft); color: var(--rose); }
+
+    /* ── DUMP DIVIDER ─────────────────────────────── */
+    .or-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0 10px;
+    }
+
+    .or-row::before,
+    .or-row::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .or-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mute);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
 <div class="app">
+
+  <!-- ═══ HEADER ════════════════════════════════════ -->
+  <div class="app-header">
+    <div class="logo">The Reel</div>
+    <div class="logo-day" id="header-day"></div>
+  </div>
 
   <!-- ═══ TAB BAR ═══════════════════════════════════ -->
   <div class="tab-bar">
@@ -537,16 +683,29 @@
   <div id="tab-make" class="tab-content">
 
     <div class="card">
-      <div class="eyebrow mb-8">Brain dump</div>
-      <textarea id="dump-textarea" rows="7"
-        placeholder="Last Tuesday I had a hair appointment in Peckham..."></textarea>
+      <div class="eyebrow mb-6">What happened this week?</div>
+      <p class="muted mb-10" style="font-size:13px">Tap a topic to get started, or just talk.</p>
+
+      <div class="prompt-row" id="prompt-chips">
+        <button class="prompt-chip" onclick="insertPrompt('business')">business</button>
+        <button class="prompt-chip" onclick="insertPrompt('ai')">AI + tech</button>
+        <button class="prompt-chip" onclick="insertPrompt('london')">London</button>
+        <button class="prompt-chip" onclick="insertPrompt('politics')">politics</button>
+        <button class="prompt-chip" onclick="insertPrompt('fun')">something fun</button>
+      </div>
+
+      <textarea id="dump-textarea" rows="6"
+        placeholder="Voice note it, type it, paste it. However it comes out is fine."></textarea>
+
+      <div class="voice-status" id="voice-status"></div>
       <div class="perf-indicator" id="perf-indicator" style="display:none">✦ Performance loop active</div>
-      <div class="flex gap-8 mt-12">
-        <button class="btn btn-primary" id="process-btn" onclick="processDump()">
-          ✦ Process dump
-        </button>
+
+      <div class="flex gap-8 mt-12" style="flex-wrap:wrap">
+        <button class="voice-btn" id="voice-btn" onclick="toggleRecording()">🎙 Record</button>
+        <button class="btn btn-primary" id="process-btn" onclick="processDump()">✦ Process</button>
         <button class="btn btn-ghost" id="clear-btn" onclick="clearDump()" style="display:none">Clear</button>
       </div>
+
       <div id="dump-loading" style="display:none">
         <div class="loading-wrap"><div class="spinner"></div> Reading the reel</div>
       </div>
@@ -1110,12 +1269,19 @@ function renderTrackList() {
 
   if (plans.length === 0) {
     const msgs = {
-      idea:          'No ideas yet. Go dump a brain dump on the Make tab.',
+      idea:          'No ideas yet. Go to Make and process a brain dump.',
       in_production: 'Nothing in production. Move an idea here once you start filming.',
-      posted:        'Nothing posted yet. When you post, mark it here and log performance.',
+      posted:        'Nothing posted yet. When you post, mark it here and log the numbers.',
       shelved:       'Nothing shelved.',
     };
-    container.innerHTML = `<div class="empty-state">${msgs[currentFilter]}</div>`;
+    const hasAnyPlans = getPlans().length > 0;
+    container.innerHTML = `
+      <div class="empty-state">
+        ${msgs[currentFilter]}
+        ${!hasAnyPlans ? `<br><button class="demo-btn" onclick="seedDemoData(); renderTrackList()">
+          ↓ Preview with example content
+        </button>` : ''}
+      </div>`;
     return;
   }
 
@@ -1430,6 +1596,7 @@ function renderLearn() {
 
     ${posted.length > 0 ? `
     <!-- Format leaderboard -->
+
     ${fmtBoard.length > 0 ? `
     <div class="card">
       <div class="eyebrow mb-4">Format leaderboard</div>
@@ -1445,7 +1612,12 @@ function renderLearn() {
       ${leaderboardRows(tagBoard, maxTag)}
     </div>` : ''}
 
-    ` : `<div class="empty-state">Post your first video and log its performance to see what's working.</div>`}
+    ` : `<div class="empty-state">
+        Post your first video, log the numbers, and the leaderboards appear here.
+        ${getPlans().length === 0 ? `<br><button class="demo-btn" onclick="seedDemoData(); renderLearn()">
+          ↓ Preview with example content
+        </button>` : ''}
+      </div>`}
 
     <!-- Learnings notebook -->
     <div class="card">
@@ -1500,12 +1672,212 @@ function fmt(n) {
 }
 
 // ═══════════════════════════════════════════════════════
+// VOICE RECORDING (Web Speech API)
+// ═══════════════════════════════════════════════════════
+
+let recognition  = null;
+let isRecording  = false;
+let liveTranscript = '';
+
+function setupVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById('voice-btn');
+  if (!SR) {
+    if (btn) { btn.disabled = true; btn.title = 'Voice not supported — try Safari on iPhone'; }
+    return;
+  }
+
+  recognition = new SR();
+  recognition.continuous      = true;
+  recognition.interimResults  = true;
+  recognition.lang            = 'en-GB';
+
+  recognition.onresult = function (e) {
+    let finalChunk = '';
+    let interimChunk = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        finalChunk += e.results[i][0].transcript;
+      } else {
+        interimChunk += e.results[i][0].transcript;
+      }
+    }
+    if (finalChunk) {
+      liveTranscript += finalChunk + ' ';
+      const ta   = document.getElementById('dump-textarea');
+      const base = ta.dataset.voiceBase || '';
+      ta.value   = (base + liveTranscript).trimEnd();
+      document.getElementById('clear-btn').style.display = 'inline-flex';
+    }
+    const statusEl = document.getElementById('voice-status');
+    if (statusEl) statusEl.textContent = interimChunk ? `"${interimChunk}"` : 'Listening...';
+  };
+
+  recognition.onend = function () {
+    if (isRecording) recognition.start();
+  };
+
+  recognition.onerror = function (e) {
+    if (e.error === 'no-speech') return;
+    stopRecording();
+    const statusEl = document.getElementById('voice-status');
+    if (statusEl) statusEl.textContent = 'Microphone stopped. Tap Record to continue.';
+  };
+}
+
+function toggleRecording() {
+  if (!recognition) {
+    const btn = document.getElementById('voice-btn');
+    btn && (btn.textContent = 'Not supported — use Safari');
+    return;
+  }
+  isRecording ? stopRecording() : startRecording();
+}
+
+function startRecording() {
+  const ta         = document.getElementById('dump-textarea');
+  ta.dataset.voiceBase = ta.value ? ta.value.trimEnd() + ' ' : '';
+  liveTranscript   = '';
+  isRecording      = true;
+
+  const btn = document.getElementById('voice-btn');
+  if (btn) { btn.classList.add('recording'); btn.textContent = '■ Stop'; }
+
+  const statusEl = document.getElementById('voice-status');
+  if (statusEl) statusEl.textContent = 'Listening...';
+
+  try { recognition.start(); } catch (e) {}
+}
+
+function stopRecording() {
+  isRecording = false;
+  try { recognition.stop(); } catch (e) {}
+
+  const btn = document.getElementById('voice-btn');
+  if (btn) { btn.classList.remove('recording'); btn.textContent = '🎙 Record'; }
+
+  const statusEl = document.getElementById('voice-status');
+  if (statusEl) statusEl.textContent = '';
+}
+
+// ═══════════════════════════════════════════════════════
+// PROMPT CHIPS
+// ═══════════════════════════════════════════════════════
+
+const PROMPT_STARTERS = {
+  business: 'So with Stylist Checked this week, ',
+  ai:       'On the AI and tech side of things, ',
+  london:   'In London lately, ',
+  politics: 'Something in the news that feels relevant to what I\'m building is ',
+  fun:      'The most fun or unexpected thing that\'s happened recently is ',
+};
+
+function insertPrompt(key) {
+  const ta      = document.getElementById('dump-textarea');
+  const starter = PROMPT_STARTERS[key] || '';
+  ta.value      = ta.value.trimEnd()
+    ? ta.value.trimEnd() + '\n\n' + starter
+    : starter;
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+  document.getElementById('clear-btn').style.display = 'inline-flex';
+}
+
+// ═══════════════════════════════════════════════════════
+// DEMO DATA (so Track + Learn aren't blank)
+// ═══════════════════════════════════════════════════════
+
+function seedDemoData() {
+  if (getPlans().some(p => p._demo)) return;
+
+  const demos = [
+    {
+      id: Date.now() + 1,
+      hook: 'I spent £4k on a website rebrand and nobody noticed',
+      script: 'So I\'m going to tell you the thing nobody tells you about building in public.\n\n[pivot]\n\nThe audience doesn\'t care about the brand. They care about the founder.\n\nAnd here\'s the thing — I\'ve had more engagement on a voice note filmed in my car than on anything the studio produced.\n\nSo now I film in my car.',
+      clipsToUse: ['walking into the studio', 'the invoice email on laptop', 'filming setup in car'],
+      caption: 'The £4k lesson nobody asked for. #buildinpublic #founderlife #stylistchecked',
+      duration: '42s',
+      experience: 'Rebrand regret',
+      format: 'Talking head',
+      tags: ['The Cost', 'Founder life'],
+      status: 'posted',
+      createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+      performance: {
+        postedAt: new Date(Date.now() - 6 * 86400000).toISOString(),
+        platform: 'tiktok',
+        url: '',
+        views: 12400, likes: 890, comments: 143, saves: 320, shares: 67,
+        audienceNote: 'Comments were all about the studio vs DIY debate. People loved the honesty.',
+        dropOff: 'Mostly held. Small drop at the pivot line.',
+      },
+      _demo: true,
+    },
+    {
+      id: Date.now() + 2,
+      hook: 'Day 47. Still no launch date.',
+      script: '[7am, kitchen]\nMorning started with the same Slack notification I\'ve been ignoring.\n\n[tube, commute]\nI listen to founder podcasts but I can\'t tell if they\'re inspiring or just making me feel behind.\n\n[at my desk at work]\nFinance job runs 9 to 6. Stylist Checked runs in every gap.\n\n[6:30pm, phone call walking]\nThe developer called. We\'re pushing the date.\n\n[evening, laptop at home]\nI told nobody. Then I wrote about it instead.',
+      clipsToUse: ['kitchen counter, morning light', 'tube journey window shot', 'desk with two laptops', 'phone call walking outside'],
+      caption: 'Day 47 of building Stylist Checked while working full time. The actual reality. #100daysofbuilding #founderlife',
+      duration: '38s',
+      experience: 'Day 47',
+      format: 'Day in the life',
+      tags: ['The Process', 'Founder life'],
+      status: 'posted',
+      createdAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+      performance: {
+        postedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+        platform: 'both',
+        url: '',
+        views: 28700, likes: 1840, comments: 267, saves: 890, shares: 134,
+        audienceNote: 'The tube clip hit. "This is so real" in every comment. Save rate was very high.',
+        dropOff: 'Almost nobody dropped. Held start to end.',
+      },
+      _demo: true,
+    },
+    {
+      id: Date.now() + 3,
+      hook: 'Why I turned down the investor DM',
+      script: 'Slide 1: I got an investor DM last month.\n\nSlide 2: I didn\'t reply for two weeks.\n\nSlide 3: Then I did something unexpected.\n\nSlide 4: I said no.\n\nSlide 5: Not because the money wasn\'t tempting.\n\nSlide 6: Because I\'m not ready to answer to anyone but my users yet.\n\nSlide 7: Maybe that\'s naive. Maybe that\'s exactly right.\n\nSlide 8: What would you have done?',
+      clipsToUse: ['screenshot of the DM', 'notes app with thoughts', 'walking outside, thinking'],
+      caption: 'The DM I didn\'t reply to for two weeks. #startuplife #founders #buildinpublic',
+      duration: 'carousel',
+      experience: 'Investor DM',
+      format: 'Carousel',
+      tags: ['The Cost', 'Founder mindset'],
+      status: 'idea',
+      createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      _demo: true,
+    },
+  ];
+
+  savePlans([...getPlans(), ...demos]);
+  if (!getThemes().length) saveThemes(['The Cost', 'Founder life', 'The Process', 'Founder mindset']);
+  storageSet('learnings', 'Hooks starting with money or honesty get more saves. Day-in-the-life format holds attention longer than talking head. Don\'t open with "good morning" -- open with the thing.');
+  updateBadge();
+}
+
+// ═══════════════════════════════════════════════════════
+// HEADER DAY COUNTER
+// ═══════════════════════════════════════════════════════
+
+function setHeaderDay() {
+  const seriesStart = new Date('2026-02-06');
+  const today       = new Date();
+  const dayNum      = Math.max(1, Math.floor((today - seriesStart) / 86400000) + 1);
+  const el          = document.getElementById('header-day');
+  if (el) el.textContent = `Day ${dayNum}`;
+}
+
+// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 
 checkPerfIndicator();
 updateBadge();
 restoreDraft();
+setupVoice();
+setHeaderDay();
 </script>
 </body>
 </html>
