@@ -1,0 +1,10 @@
+# Never deploy internal files (3 Oct 2026, CC Privacy promises): agent
+# settings and logs, session notes, tests, docs and any env file. The Paris
+# page published its notes and agent files by accident until 3 Oct.
+.claude/
+.claude-flow/
+memory/
+tests/
+docs/
+.env
+.env.*
